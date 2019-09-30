@@ -1,0 +1,6 @@
+server.port: 12312
+
+logging:
+  level:
+    com.zaxxer.hikari*: debug: debug
+    reactor.ipc.netty*: debug

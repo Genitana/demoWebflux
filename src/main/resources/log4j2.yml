@@ -1,0 +1,48 @@
+Configuration:
+  status: warn
+  
+  Properties: # 定义全局变量
+    Property: # 缺省配置（用于开发环境）。其他环境需要在VM参数中指定，如下：  
+      #测试：-Dlog.level=info -Dlog.level.cass=trace  
+      #生产：-Dlog.level=warn -Dlog.level.cass=info        
+      - name: log.level  
+        value: info  
+      - name: log.level.cass  
+        value: trace
+      - name: log.filename  
+        value: calculate-service
+
+  Appenders:
+    Console:
+      name: Console
+      target: SYSTEM_OUT
+      PatternLayout:
+        Pattern: "%d{yyyy-MM-dd HH:mm:ss,SSS}:%4p %t (%F:%L) - %m%n"
+    RollingFile:
+      - name: ROLLING_FILE
+        ignoreExceptions: false  
+        fileName: logs/${sys:log.filename}.log
+        filePattern: "logs/$${date:yyyy-MM}/${sys:log.filename}-%d{yyyy-MM-dd}-%i.log.gz"  
+        PatternLayout:  
+          pattern: "%d{yyyy-MM-dd HH:mm:ss,SSS}:%4p %t (%F:%L) - %m%n"  
+        Policies:
+          TimeBasedTriggeringPolicy:
+            interval: 1
+            modulate: true
+          SizeBasedTriggeringPolicy:
+            size: "128 MB"
+        DefaultRolloverStrategy:  
+          max: 1000  
+  Loggers:
+    Root:
+      level: ${sys:log.level}
+      AppenderRef:
+        - ref: Console
+        - ref: ROLLING_FILE
+    Logger:
+      - name: com.casstime
+        additivity: false
+        level: ${sys:log.level.cass}
+        AppenderRef:
+          - ref: Console
+          - ref: ROLLING_FILE 
